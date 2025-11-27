@@ -38,15 +38,16 @@ export function generateTreeData(levels = 3) {
     const generateNode = (level) => {
         const value = Math.floor(Math.random() * 100) + 1;
         if (level === 0) {
-            return { id: `node-${Math.random()}`, value, children: [] };
+            return { id: `node-${Math.random()}`, value };
         }
         return {
             id: `node-${Math.random()}`,
             value,
-            children: [generateNode(level - 1), generateNode(level - 1)],
+            left: generateNode(level - 1),
+            right: generateNode(level - 1),
         };
     };
-    return generateNode(levels - 1);
+    return generateNode(Math.max(1, levels) - 1);
 }
 export function generateGraphData(nodeCount = 6) {
     const nodes = Array.from({ length: nodeCount }, (_, i) => ({
