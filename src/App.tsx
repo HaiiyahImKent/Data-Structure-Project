@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "@components/Navbar";
 import Footer from "@components/Footer";
 import { initializeTheme } from "@store/themeStore";
-// import "./styles/globals.css";
 
 const HomePage = lazy(() => import("@pages/HomePage"));
 const LearnPage = lazy(() => import("@pages/LearnPage"));
