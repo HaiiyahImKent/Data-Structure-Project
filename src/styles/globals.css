@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	* {
+		@apply transition-colors duration-200;
+	}
+
+	body {
+		@apply bg-slate-900 text-slate-100;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply font-bold text-slate-50;
+	}
+}
+
+@layer components {
+	.glass {
+		@apply bg-white/10 backdrop-blur-md border border-white/20 rounded-lg;
+	}
+
+	.glass-dark {
+		@apply bg-slate-800/50 backdrop-blur-md border border-slate-700/50 rounded-lg;
+	}
+
+	.btn-primary {
+		@apply px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/50;
+	}
+
+	.btn-secondary {
+		@apply px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-semibold text-white transition-all duration-200;
+	}
+
+	.btn-ghost {
+		@apply px-4 py-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200;
+	}
+
+	.card-base {
+		@apply rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm p-6;
+	}
+
+	.input-base {
+		@apply px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+	}
+
+	.badge {
+		@apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30;
+	}
+
+	.node-base {
+		@apply rounded-full border-2 flex items-center justify-center font-bold text-white shadow-lg;
+	}
+
+	.node-active {
+		@apply animate-pulse-glow shadow-xl;
+	}
+}
