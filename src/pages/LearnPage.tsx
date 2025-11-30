@@ -1,10 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getStructureById } from "@data/structures";
-import { AlertCircle, Code, BookOpen, Award } from "lucide-react";
+import { AlertCircle, BookOpen, Award } from "lucide-react";
+import CodeDisplay from "@components/CodeDisplay";
 
 export default function LearnPage() {
 	const { structureId } = useParams<{ structureId: string }>();
+	const navigate = useNavigate();
 	const structure = getStructureById(structureId || "");
 
 	if (!structure) {
@@ -96,15 +98,11 @@ export default function LearnPage() {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.2 }}
-						className="card-base"
 					>
-						<h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-							<Code size={24} className="text-green-400" />
-							TypeScript Implementation
-						</h2>
-						<pre className="bg-slate-800/80 rounded-lg p-4 overflow-x-auto text-sm text-slate-200 border border-slate-700">
-							<code>{structure.codeSnippet}</code>
-						</pre>
+						<CodeDisplay
+							structureId={structureId || ""}
+							title="Code Implementation (Multiple Languages)"
+						/>
 					</motion.div>
 				</div>
 
@@ -177,6 +175,7 @@ export default function LearnPage() {
 						<motion.button
 							whileHover={{ scale: 1.05 }}
 							whileTap={{ scale: 0.95 }}
+							onClick={() => navigate(`/visualize/${structureId}`)}
 							className="btn-primary w-full py-3 rounded-lg font-semibold"
 						>
 							Visualize It
@@ -184,6 +183,7 @@ export default function LearnPage() {
 						<motion.button
 							whileHover={{ scale: 1.05 }}
 							whileTap={{ scale: 0.95 }}
+							onClick={() => navigate(`/quiz/${structureId}`)}
 							className="btn-secondary w-full py-3 rounded-lg font-semibold"
 						>
 							Take Quiz

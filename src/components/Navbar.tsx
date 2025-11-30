@@ -28,18 +28,18 @@ export default function Navbar() {
 						>
 							Home
 						</Link>
-						<a
-							href="#structures"
+						<Link
+							to="/learn/array"
 							className="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-700/50 transition"
 						>
 							Learn
-						</a>
-						<a
-							href="#learn"
+						</Link>
+						<Link
+							to="/visualize/array"
 							className="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-700/50 transition"
 						>
 							Visualize
-						</a>
+						</Link>
 						<div className="border-l border-slate-700 mx-2"></div>
 						<button
 							onClick={toggleTheme}
@@ -80,13 +80,20 @@ export default function Navbar() {
 							>
 								Home
 							</Link>
-							<a
-								href="#structures"
+							<Link
+								to="/learn/array"
 								className="block px-3 py-2 rounded-lg hover:bg-slate-700/50 transition"
 								onClick={() => setIsOpen(false)}
 							>
-								Structures
-							</a>
+								Learn
+							</Link>
+							<Link
+								to="/visualize/array"
+								className="block px-3 py-2 rounded-lg hover:bg-slate-700/50 transition"
+								onClick={() => setIsOpen(false)}
+							>
+								Visualize
+							</Link>
 						</div>
 					</div>
 				)}

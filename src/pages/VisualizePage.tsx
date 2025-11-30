@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getStructureById } from "@data/structures";
@@ -14,6 +14,8 @@ import {
 import PlaybackControls from "@components/PlaybackControls";
 import ComplexityTable from "@components/ComplexityTable";
 import OperationLog from "@components/OperationLog";
+import AlgorithmStepsDisplay from "@components/AlgorithmStepsDisplay";
+
 import ArrayVisualizer from "@visualizers/ArrayVisualizer";
 import LinkedListVisualizer from "@visualizers/LinkedListVisualizer";
 import StackVisualizer from "@visualizers/StackVisualizer";
@@ -30,6 +32,18 @@ import {
 } from "@store/dataStructureStores";
 import { useVisualization } from "@store/visualizationStore";
 import { calculateOperationComplexity } from "@utils/complexity";
+import {
+	getStackPushSteps,
+	getStackPopSteps,
+	getQueueEnqueueSteps,
+	getQueueDequeueSteps,
+	getArrayInsertSteps,
+	getArrayRemoveSteps,
+	getLinkedListInsertSteps,
+	getLinkedListRemoveSteps,
+	getTreeInsertSteps,
+	getHeapInsertSteps,
+} from "@utils/algorithmSteps";
 import { AlertCircle, Plus, Trash2 } from "lucide-react";
 
 interface LinkedListNode {
@@ -249,6 +263,22 @@ export default function VisualizePage() {
 		"hash-table": "Enter key:value (e.g. user:42)",
 	};
 
+	// Handle algorithm step playback
+	useEffect(() => {
+		if (!visualization.isAnimating || visualization.algorithmSteps.length === 0) return;
+
+		const interval = setInterval(() => {
+			const nextIndex = visualization.currentStepIndex + 1;
+			if (nextIndex < visualization.algorithmSteps.length) {
+				visualization.nextStep();
+			} else {
+				visualization.setAnimating(false);
+			}
+		}, 1500 / visualization.animationSpeed);
+
+		return () => clearInterval(interval);
+	}, [visualization, visualization.isAnimating, visualization.animationSpeed]);
+
 	const inputPlaceholder = placeholders[structureId || ""] || "Enter a value...";
 	const isHashInput = structureId === "hash-table";
 
@@ -280,6 +310,7 @@ export default function VisualizePage() {
 		}
 
 		setIsAnimating(true);
+		visualization.setAnimating(true);
 		try {
 			let logValue: string | number = isHashInput ? trimmed : numericValue;
 			let operationLabel = capitalize(resolveOperationKey(structureId, "add"));
@@ -289,26 +320,46 @@ export default function VisualizePage() {
 			switch (structureId) {
 				case "array":
 					arrayStore.insert(numericValue);
+					visualization.setAlgorithmSteps(
+						getArrayInsertSteps(
+							numericValue,
+							arrayStore.items.length - 1,
+							arrayStore.items
+						)
+					);
 					mutated = true;
 					break;
 				case "stack":
 					stackStore.push(numericValue);
+					visualization.setAlgorithmSteps(
+						getStackPushSteps(numericValue, stackStore.items)
+					);
 					mutated = true;
 					break;
 				case "queue":
 					queueStore.enqueue(numericValue);
+					visualization.setAlgorithmSteps(
+						getQueueEnqueueSteps(numericValue, queueStore.items)
+					);
 					mutated = true;
 					break;
 				case "linked-list":
 					setLinkedListNodes((prev) => {
 						const next = [...prev, { id: `ll-${Date.now()}`, value: numericValue }];
+						visualization.setAlgorithmSteps(
+							getLinkedListInsertSteps(numericValue, next.length)
+						);
 						setHighlightedLinkedIndex(next.length - 1);
 						return next;
 					});
 					mutated = true;
 					break;
 				case "tree":
-					setTreeData((prev) => insertIntoTree(prev, numericValue));
+					setTreeData((prev) => {
+						const next = insertIntoTree(prev, numericValue);
+						visualization.setAlgorithmSteps(getTreeInsertSteps(numericValue));
+						return next;
+					});
 					mutated = true;
 					break;
 				case "graph":
@@ -316,7 +367,13 @@ export default function VisualizePage() {
 					mutated = true;
 					break;
 				case "heap":
-					setHeapItems((prev) => insertHeapValue(prev, numericValue));
+					setHeapItems((prev) => {
+						const next = insertHeapValue(prev, numericValue);
+						visualization.setAlgorithmSteps(
+							getHeapInsertSteps(numericValue, next.length)
+						);
+						return next;
+					});
 					mutated = true;
 					break;
 				case "hash-table": {
@@ -379,6 +436,9 @@ export default function VisualizePage() {
 				case "array": {
 					if (arrayStore.items.length > 0) {
 						removedValue = arrayStore.items[arrayStore.items.length - 1];
+						visualization.setAlgorithmSteps(
+							getArrayRemoveSteps(arrayStore.items.length - 1, arrayStore.items)
+						);
 						arrayStore.remove(arrayStore.items.length - 1);
 						didMutate = true;
 					}
@@ -386,6 +446,7 @@ export default function VisualizePage() {
 				}
 				case "stack": {
 					const popped = stackStore.pop();
+					visualization.setAlgorithmSteps(getStackPopSteps(stackStore.items));
 					if (popped !== undefined) {
 						removedValue = popped;
 						didMutate = true;
@@ -394,6 +455,7 @@ export default function VisualizePage() {
 				}
 				case "queue": {
 					const dequeued = queueStore.dequeue();
+					visualization.setAlgorithmSteps(getQueueDequeueSteps(queueStore.items));
 					if (dequeued !== undefined) {
 						removedValue = dequeued;
 						didMutate = true;
@@ -404,6 +466,9 @@ export default function VisualizePage() {
 					setLinkedListNodes((prev) => {
 						if (prev.length === 0) return prev;
 						removedValue = prev[prev.length - 1].value;
+						visualization.setAlgorithmSteps(
+							getLinkedListRemoveSteps(prev[prev.length - 1].value, prev.length)
+						);
 						didMutate = true;
 						return prev.slice(0, -1);
 					});
@@ -418,6 +483,7 @@ export default function VisualizePage() {
 						const target = hasExplicitTarget ? numericInput : treeData.value;
 						const { root, removed } = removeFromTree(treeData, target);
 						if (removed !== undefined) {
+							visualization.setAlgorithmSteps(getTreeInsertSteps(target));
 							setTreeData(root);
 							removedValue = removed;
 							didMutate = true;
@@ -637,9 +703,9 @@ export default function VisualizePage() {
 				</p>
 			</motion.div>
 
-			<div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 				{/* Main Visualization Area */}
-				<div className="lg:col-span-3 space-y-6">
+				<div className="lg:col-span-2 space-y-6">
 					{/* Visualizer */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -752,19 +818,10 @@ export default function VisualizePage() {
 							</motion.button>
 						</div>
 					</motion.div>
-
-					{/* Complexity Table */}
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.2 }}
-					>
-						<ComplexityTable complexities={structure.complexity} />
-					</motion.div>
 				</div>
 
 				{/* Sidebar */}
-				<div className="space-y-6">
+				<div className="space-y-4">
 					{/* Playback Controls */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -772,25 +829,61 @@ export default function VisualizePage() {
 						transition={{ delay: 0.3 }}
 					>
 						<PlaybackControls
-							isAnimating={isAnimating}
-							onPlay={() => setIsAnimating(true)}
-							onPause={() => setIsAnimating(false)}
-							onReset={() => {}}
+							isAnimating={visualization.isAnimating}
+							onPlay={() => visualization.setAnimating(true)}
+							onPause={() => visualization.setAnimating(false)}
+							onReset={() => {
+								visualization.clearAlgorithmSteps();
+								visualization.setAnimating(false);
+							}}
 							speed={visualization.animationSpeed}
 							onSpeedChange={visualization.setAnimationSpeed}
 							onUndo={visualization.undoLastOperation}
 							onRedo={visualization.redoLastOperation}
 							canUndo={visualization.historyIndex > 0}
 							canRedo={visualization.historyIndex < visualization.history.length - 1}
+							onPreviousStep={() => visualization.previousStep()}
+							onNextStep={() => visualization.nextStep()}
+							canPreviousStep={visualization.currentStepIndex > 0}
+							canNextStep={
+								visualization.currentStepIndex <
+								visualization.algorithmSteps.length - 1
+							}
+							showStepControls={visualization.algorithmSteps.length > 0}
 						/>
 					</motion.div>
+
+					{/* Complexity Table */}
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.25 }}
+					>
+						<ComplexityTable complexities={structure.complexity} />
+					</motion.div>
+
+					{/* Algorithm Steps Display */}
+					{visualization.algorithmSteps.length > 0 && (
+						<motion.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.35 }}
+							className="card-base max-h-72"
+						>
+							<AlgorithmStepsDisplay
+								steps={visualization.algorithmSteps}
+								currentStepIndex={visualization.currentStepIndex}
+								isPlaying={visualization.isAnimating}
+							/>
+						</motion.div>
+					)}
 
 					{/* Operation Log */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.4 }}
-						className="h-96"
+						className="card-base max-h-64"
 					>
 						<OperationLog
 							logs={visualization.operations}

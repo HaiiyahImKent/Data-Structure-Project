@@ -1,8 +1,10 @@
 import { create } from "zustand";
-export const useVisualization = create((set) => ({
+export const useVisualization = create((set, get) => ({
     operations: [],
     isAnimating: false,
     animationSpeed: 1,
+    algorithmSteps: [],
+    currentStepIndex: 0,
     history: [[]],
     historyIndex: 0,
     addOperation: (operation) => set((state) => {
@@ -22,6 +24,31 @@ export const useVisualization = create((set) => ({
     })),
     setAnimating: (animating) => set(() => ({ isAnimating: animating })),
     setAnimationSpeed: (speed) => set(() => ({ animationSpeed: Math.max(0.5, Math.min(2, speed)) })),
+    setAlgorithmSteps: (steps) => set(() => ({
+        algorithmSteps: steps,
+        currentStepIndex: 0,
+    })),
+    setCurrentStepIndex: (index) => {
+        const state = get();
+        const validIndex = Math.max(0, Math.min(index, state.algorithmSteps.length - 1));
+        set(() => ({ currentStepIndex: validIndex }));
+    },
+    clearAlgorithmSteps: () => set(() => ({
+        algorithmSteps: [],
+        currentStepIndex: 0,
+    })),
+    nextStep: () => {
+        const state = get();
+        if (state.currentStepIndex < state.algorithmSteps.length - 1) {
+            set(() => ({ currentStepIndex: state.currentStepIndex + 1 }));
+        }
+    },
+    previousStep: () => {
+        const state = get();
+        if (state.currentStepIndex > 0) {
+            set(() => ({ currentStepIndex: state.currentStepIndex - 1 }));
+        }
+    },
     undoLastOperation: () => set((state) => {
         if (state.historyIndex > 0) {
             const newIndex = state.historyIndex - 1;

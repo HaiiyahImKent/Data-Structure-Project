@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { AlgorithmStep } from "@utils/algorithmSteps";
 
 export type OperationValue =
 	| string
@@ -21,6 +22,8 @@ interface VisualizationStore {
 	operations: OperationLog[];
 	isAnimating: boolean;
 	animationSpeed: number;
+	algorithmSteps: AlgorithmStep[];
+	currentStepIndex: number;
 	addOperation: (operation: OperationLog) => void;
 	clearOperations: () => void;
 	setAnimating: (animating: boolean) => void;
@@ -29,12 +32,19 @@ interface VisualizationStore {
 	redoLastOperation: () => void;
 	history: OperationLog[][];
 	historyIndex: number;
+	setAlgorithmSteps: (steps: AlgorithmStep[]) => void;
+	setCurrentStepIndex: (index: number) => void;
+	clearAlgorithmSteps: () => void;
+	nextStep: () => void;
+	previousStep: () => void;
 }
 
-export const useVisualization = create<VisualizationStore>((set) => ({
+export const useVisualization = create<VisualizationStore>((set, get) => ({
 	operations: [],
 	isAnimating: false,
 	animationSpeed: 1,
+	algorithmSteps: [],
+	currentStepIndex: 0,
 	history: [[]],
 	historyIndex: 0,
 
@@ -61,6 +71,38 @@ export const useVisualization = create<VisualizationStore>((set) => ({
 
 	setAnimationSpeed: (speed: number) =>
 		set(() => ({ animationSpeed: Math.max(0.5, Math.min(2, speed)) })),
+
+	setAlgorithmSteps: (steps: AlgorithmStep[]) =>
+		set(() => ({
+			algorithmSteps: steps,
+			currentStepIndex: 0,
+		})),
+
+	setCurrentStepIndex: (index: number) => {
+		const state = get();
+		const validIndex = Math.max(0, Math.min(index, state.algorithmSteps.length - 1));
+		set(() => ({ currentStepIndex: validIndex }));
+	},
+
+	clearAlgorithmSteps: () =>
+		set(() => ({
+			algorithmSteps: [],
+			currentStepIndex: 0,
+		})),
+
+	nextStep: () => {
+		const state = get();
+		if (state.currentStepIndex < state.algorithmSteps.length - 1) {
+			set(() => ({ currentStepIndex: state.currentStepIndex + 1 }));
+		}
+	},
+
+	previousStep: () => {
+		const state = get();
+		if (state.currentStepIndex > 0) {
+			set(() => ({ currentStepIndex: state.currentStepIndex - 1 }));
+		}
+	},
 
 	undoLastOperation: () =>
 		set((state) => {
