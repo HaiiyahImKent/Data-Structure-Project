@@ -65,7 +65,6 @@ export default function AlgorithmStepsDisplay({
 				{steps.map((step, index) => {
 					const isActive = index === currentStepIndex;
 					const isCompleted = index < currentStepIndex;
-					const isPending = index > currentStepIndex;
 
 					return (
 						<motion.div
