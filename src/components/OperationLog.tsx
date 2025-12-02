@@ -40,7 +40,7 @@ export default function OperationLog({ logs, onClear }: OperationLogProps) {
 		<motion.div
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
-			className="rounded-xl flex flex-col h-full bg-gradient-to-br from-slate-800/60 to-slate-900/40 border border-slate-700/50 backdrop-blur-sm shadow-xl overflow-hidden"
+			className="rounded-xl flex flex-col max-h-64 bg-gradient-to-br from-slate-800/60 to-slate-900/40 border border-slate-700/50 backdrop-blur-sm shadow-xl overflow-hidden"
 		>
 			{/* Header */}
 			<div className="flex items-center justify-between p-5 border-b border-slate-700/50 bg-gradient-to-r from-blue-600/20 to-cyan-600/20">
@@ -79,7 +79,7 @@ export default function OperationLog({ logs, onClear }: OperationLogProps) {
 			</div>
 
 			{/* Logs Container */}
-			<div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">
+			<div className="flex-1 min-h-0 overflow-auto max-h-96 p-4 space-y-3 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">
 				{logs.length === 0 ? (
 					<motion.div
 						initial={{ opacity: 0, scale: 0.9 }}
@@ -121,8 +121,8 @@ export default function OperationLog({ logs, onClear }: OperationLogProps) {
 									initial={false}
 								/>
 
-								<div className="relative p-3 space-y-1.5">
-									<div className="flex justify-between items-start gap-2">
+								<div className="relative p-3 space-y-1.5 overflow-auto max-h-96">
+									<div className="flex justify-between items-start gap-2 overflow-auto max-h-96">
 										<div className="flex-1 min-w-0">
 											<motion.span
 												initial={{ opacity: 0.7 }}
@@ -156,7 +156,7 @@ export default function OperationLog({ logs, onClear }: OperationLogProps) {
 										initial={{ opacity: 0.5 }}
 										animate={{ opacity: 1 }}
 										transition={{ delay: 0.2 }}
-										className="text-xs text-slate-400 flex items-center gap-1.5"
+										className="text-xs text-white flex items-center gap-1.5"
 									>
 										<Clock size={12} />
 										{new Date(log.timestamp).toLocaleTimeString()}

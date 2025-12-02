@@ -7,10 +7,10 @@ interface StackVisualizerProps {
 
 export default function StackVisualizer({ items, topIndex }: StackVisualizerProps) {
 	return (
-		<motion.div className="flex flex-col-reverse items-center justify-end h-80 gap-2 p-4 bg-slate-800/50 rounded-lg min-w-48">
+		<motion.div className="flex flex-col-reverse items-center justify-start gap-2 p-4 bg-slate-800/50 rounded-lg min-w-48 max-h-80 overflow-y-auto">
 			{items.map((item, index) => (
 				<motion.div
-					key={`${index}-${item}`}
+					key={`${item}-${index}`}
 					layout
 					initial={{ opacity: 0, x: -20 }}
 					animate={{ opacity: 1, x: 0 }}
@@ -27,10 +27,15 @@ export default function StackVisualizer({ items, topIndex }: StackVisualizerProp
 							← TOP
 						</span>
 					)}
+					{index === items.length - 1 && index !== topIndex && (
+						<span className="absolute -right-16 text-sm text-green-400 font-semibold whitespace-nowrap">
+							← BOTTOM
+						</span>
+					)}
 				</motion.div>
 			))}
 			{items.length === 0 && (
-				<div className="flex items-center justify-center w-full h-full text-slate-500">
+				<div className="flex items-center justify-center w-full py-12 text-slate-500">
 					<p>Stack is empty</p>
 				</div>
 			)}

@@ -15,39 +15,40 @@ export default function LinkedListVisualizer({
 	highlightedIndex,
 }: LinkedListVisualizerProps) {
 	return (
-		<motion.div className="flex items-center justify-center gap-0 p-4 bg-slate-800/50 rounded-lg overflow-x-auto min-h-40">
+		<motion.div className="bg-slate-800/50 rounded-lg overflow-x-auto min-h-40">
 			{nodes.length === 0 ? (
-				<div className="flex items-center justify-center w-full h-full text-slate-500">
+				<div className="flex h-full items-center justify-center p-6 text-slate-500">
 					<p>List is empty</p>
 				</div>
 			) : (
-				nodes.map((node, index) => (
-					<motion.div
-						key={node.id}
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						className="flex items-center"
-					>
-						{/* Node */}
+				<div className="flex items-center gap-4 px-6 py-4 min-w-max">
+					{nodes.map((node, index) => (
 						<motion.div
-							whileHover={{ scale: 1.1 }}
-							className={`w-16 h-16 rounded-lg flex items-center justify-center font-bold text-white shadow-lg border-2 flex-shrink-0 ${
-								highlightedIndex === index
-									? "bg-gradient-to-r from-blue-500 to-cyan-500 border-cyan-300"
-									: "bg-slate-700 border-slate-600"
-							}`}
+							key={node.id}
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							className="flex items-center gap-4"
 						>
-							{node.value}
-						</motion.div>
-
-						{/* Arrow */}
-						{index < nodes.length - 1 && (
-							<motion.div className="w-12 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-2 relative">
-								<div className="absolute right-0 w-3 h-3 border-r-2 border-t-2 border-orange-600 transform rotate-45 translate-y-1"></div>
+							<motion.div
+								whileHover={{ scale: 1.1 }}
+								className={`w-16 h-16 rounded-lg flex items-center justify-center font-bold text-white shadow-lg border-2 flex-shrink-0 ${
+									highlightedIndex === index
+										? "bg-gradient-to-r from-blue-500 to-cyan-500 border-cyan-300"
+										: "bg-slate-700 border-slate-600"
+								}`}
+							>
+								{node.value}
 							</motion.div>
-						)}
-					</motion.div>
-				))
+
+							{index < nodes.length - 1 && (
+								<div className="relative flex items-center">
+									<div className="h-1 w-12 rounded-full bg-gradient-to-r from-emerald-400 to-green-500"></div>
+									<div className="absolute right-0 top-1/2 h-3 w-3 -translate-y-1/2 rotate-45 border-t-2 border-r-2 border-green-400"></div>
+								</div>
+							)}
+						</motion.div>
+					))}
+				</div>
 			)}
 		</motion.div>
 	);

@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
 import { DATA_STRUCTURES } from "@data/structures";
 import StructureCard from "@components/StructureCard";
 import { useNavigate } from "react-router-dom";
@@ -16,24 +15,33 @@ export default function HomePage() {
 			description: "Understand the AlgoVisual experience and navigation tips",
 			badge: "Basics",
 			cta: "View guide",
+			href: "/guides/getting-started",
+			disabled: false,
 		},
 		{
 			title: "Operations Reference",
 			description: "In-depth look at operations, complexities, and animations",
 			badge: "Deep Dive",
 			cta: "Read docs",
+			href: "/docs/operations",
+			disabled: false,
 		},
 		{
 			title: "Visualization Controls",
 			description: "Learn how to drive the timeline, playback, and logging tools",
 			badge: "How-To",
 			cta: "Explore",
+			href: "/explore/visualization-controls",
+			disabled: false,
 		},
 		{
 			title: "API & Data",
 			description: "Hook into datasets and extend visualizations for projects",
 			badge: "Advanced",
 			cta: "Integrate",
+			href: null,
+			disabled: true,
+			disabledLabel: "Coming soon",
 		},
 	];
 
@@ -68,9 +76,8 @@ export default function HomePage() {
 	return (
 		<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden py-20">
-				<div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-slate-900 to-slate-900"></div>
-
+			<section className="relative overflow-hidden py-32">
+				<div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-slate-900 to-slate-900"></div>{" "}
 				<div className="container mx-auto px-4 relative z-10">
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -78,21 +85,16 @@ export default function HomePage() {
 						transition={{ delay: 0.1 }}
 						className="text-center max-w-3xl mx-auto mb-12"
 					>
-						<div className="flex items-center justify-center gap-2 mb-4">
-							<Sparkles className="text-yellow-400" />
+						<div className="flex items-center justify-center gap-2 mb-6">
 							<span className="badge">Learn Data Structures</span>
-							<Sparkles className="text-yellow-400" />
 						</div>
-
-						<h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
+						<h1 className="text-7xl md:text-8xl font-bold mb-8 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent leading-tight">
 							AlgoVisual
-						</h1>
-
+						</h1>{" "}
 						<p className="text-xl text-slate-300 mb-8">
 							Master fundamental data structures through interactive visualizations,
 							step-by-step animations, and hands-on learning
 						</p>
-
 						<div className="flex gap-4 justify-center flex-wrap">
 							<motion.button
 								whileHover={{ scale: 1.05 }}
@@ -229,7 +231,9 @@ export default function HomePage() {
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
 							transition={{ delay: idx * 0.05 }}
-							className="card-base h-full flex flex-col justify-between border border-slate-700/40 hover:border-blue-500/60"
+							className={`card-base h-full flex flex-col justify-between border border-slate-700/40 ${
+								resource.disabled ? "opacity-60" : "hover:border-blue-500/60"
+							}`}
 						>
 							<div>
 								<span className="text-xs font-semibold tracking-wide uppercase text-blue-300">
@@ -240,13 +244,23 @@ export default function HomePage() {
 								</h3>
 								<p className="text-slate-400 text-sm">{resource.description}</p>
 							</div>
-							<button
-								onClick={() => navigate("/learn/array")}
-								className="mt-6 text-sm font-semibold text-blue-400 hover:text-blue-200 flex items-center gap-2"
-							>
-								{resource.cta}
-								<span aria-hidden="true">→</span>
-							</button>
+							{!resource.disabled ? (
+								<button
+									onClick={() => resource.href && navigate(resource.href)}
+									className="mt-6 text-sm font-semibold text-blue-400 hover:text-blue-200 flex items-center gap-2"
+								>
+									{resource.cta}
+									<span aria-hidden="true">→</span>
+								</button>
+							) : (
+								<button
+									disabled
+									className="mt-6 text-sm font-semibold text-slate-500 cursor-not-allowed flex items-center gap-2"
+								>
+									{resource.disabledLabel}
+									<span aria-hidden="true">→</span>
+								</button>
+							)}
 						</motion.article>
 					))}
 				</motion.div>

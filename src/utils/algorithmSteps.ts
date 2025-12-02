@@ -31,7 +31,9 @@ export const getStackPushSteps = (value: number, currentItems: number[]): Algori
 };
 
 export const getStackPopSteps = (currentItems: number[]): AlgorithmStep[] => {
-	const topValue = currentItems[currentItems.length - 1];
+	const hasItems = currentItems.length > 0;
+	const topIndex = hasItems ? currentItems.length - 1 : 0;
+	const topValue = hasItems ? currentItems[topIndex] : null;
 	return [
 		{
 			action: "Check Stack",
@@ -43,13 +45,17 @@ export const getStackPopSteps = (currentItems: number[]): AlgorithmStep[] => {
 		},
 		{
 			action: "Remove Top",
-			description: `Remove element ${topValue} from top`,
+			description: hasItems
+				? `Remove element ${topValue} from top`
+				: "Stack is empty — nothing to remove",
 			status: "pending",
-			activeIndex: currentItems.length - 1,
+			activeIndex: topIndex,
 		},
 		{
 			action: "Complete",
-			description: `Successfully popped ${topValue}`,
+			description: hasItems
+				? `Successfully popped ${topValue}`
+				: "Operation finished without changes",
 			status: "pending",
 		},
 	];
@@ -213,15 +219,21 @@ export const getArraySearchSteps = (value: number, currentItems: number[]): Algo
 	}
 
 	const foundIndex = currentItems.indexOf(value);
-	steps.push({
-		action: "Complete",
-		description:
-			foundIndex >= 0
-				? `Successfully found ${value} at index ${foundIndex}`
-				: `${value} not found in array`,
-		status: "pending",
-		activeIndex: foundIndex >= 0 ? foundIndex : -1,
-	});
+	if (foundIndex >= 0) {
+		steps.push({
+			action: "Complete",
+			description: `Successfully found ${value} at index ${foundIndex}`,
+			status: "pending",
+			activeIndex: foundIndex,
+		});
+	} else {
+		steps.push({
+			action: "Complete",
+			description: `${value} not found in array`,
+			status: "pending",
+			activeIndex: 0,
+		});
+	}
 
 	return steps;
 };
@@ -345,6 +357,70 @@ export const getGraphDFSSteps = (startNode: number, nodeCount: number): Algorith
 	});
 
 	return steps;
+};
+
+export const getGraphAddNodeSteps = (
+	value: number,
+	nodeIndex: number,
+	connections: number
+): AlgorithmStep[] => {
+	const nodeNumber = nodeIndex + 1;
+	return [
+		{
+			action: "Create Node",
+			description: `Create new vertex with value ${value}`,
+			status: "in-progress",
+			activeIndex: nodeIndex,
+		},
+		{
+			action: "Place Node",
+			description: `Position node ${nodeNumber} on the layout circle`,
+			status: "pending",
+			activeIndex: nodeIndex,
+		},
+		{
+			action: "Connect Edges",
+			description:
+				connections > 0
+					? `Create ${connections} connection${
+							connections === 1 ? "" : "s"
+					  } to existing nodes`
+					: "No edges to add yet (first node)",
+			status: "pending",
+		},
+		{
+			action: "Complete",
+			description: `Graph now contains ${nodeNumber} node${nodeNumber === 1 ? "" : "s"}`,
+			status: "pending",
+		},
+	];
+};
+
+export const getGraphRemoveNodeSteps = (value: number, remainingNodes: number): AlgorithmStep[] => {
+	return [
+		{
+			action: "Locate Node",
+			description: `Identify vertex with value ${value}`,
+			status: "in-progress",
+		},
+		{
+			action: "Detach Edges",
+			description: "Remove all edges connected to the vertex",
+			status: "pending",
+		},
+		{
+			action: "Remove Vertex",
+			description: `Delete node ${value} from the graph`,
+			status: "pending",
+		},
+		{
+			action: "Complete",
+			description: `Graph now contains ${remainingNodes} node${
+				remainingNodes === 1 ? "" : "s"
+			}`,
+			status: "pending",
+		},
+	];
 };
 
 // Heap steps

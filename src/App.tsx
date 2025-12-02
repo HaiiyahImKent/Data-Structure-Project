@@ -8,6 +8,9 @@ const HomePage = lazy(() => import("@pages/HomePage"));
 const LearnPage = lazy(() => import("@pages/LearnPage"));
 const VisualizePage = lazy(() => import("@pages/VisualizePage"));
 const QuizPage = lazy(() => import("@pages/QuizPage"));
+const GettingStartedPage = lazy(() => import("@pages/GettingStartedPage"));
+const DocsPage = lazy(() => import("@pages/DocsPage"));
+const ExplorePage = lazy(() => import("@pages/ExplorePage"));
 
 const LoadingFallback = () => (
 	<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -31,6 +34,15 @@ function App() {
 					<Suspense fallback={<LoadingFallback />}>
 						<Routes>
 							<Route path="/" element={<HomePage />} />
+							<Route
+								path="/guides/getting-started"
+								element={<GettingStartedPage />}
+							/>
+							<Route path="/docs/operations" element={<DocsPage />} />
+							<Route
+								path="/explore/visualization-controls"
+								element={<ExplorePage />}
+							/>
 							<Route path="/learn/:structureId" element={<LearnPage />} />
 							<Route path="/visualize/:structureId" element={<VisualizePage />} />
 							<Route path="/quiz/:structureId" element={<QuizPage />} />

@@ -32,7 +32,13 @@ export default function GraphVisualizer({
 					<p>No graph data. Create a graph!</p>
 				</div>
 			) : (
-				<svg width="100%" height="400" style={{ minHeight: "400px" }}>
+				<svg
+					width="100%"
+					height="400"
+					viewBox="0 0 400 400"
+					preserveAspectRatio="xMidYMid meet"
+					style={{ minHeight: "400px" }}
+				>
 					{/* Edges */}
 					{edges.map((edge, idx) => {
 						const fromNode = nodes[edge.from];

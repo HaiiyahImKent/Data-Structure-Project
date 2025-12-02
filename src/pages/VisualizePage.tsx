@@ -128,15 +128,22 @@ const removeFromTree = (
 	};
 };
 
+const layoutGraphNodes = (nodes: GraphNodeData[]): GraphNodeData[] => {
+	const total = Math.max(1, nodes.length);
+	return nodes.map((node, index) => ({
+		...node,
+		x: Math.cos((index / total) * Math.PI * 2) * 150 + 200,
+		y: Math.sin((index / total) * Math.PI * 2) * 150 + 200,
+	}));
+};
+
 const addGraphNode = (data: GraphData, value: number): GraphData => {
 	const newIndex = data.nodes.length;
-	const total = Math.max(1, newIndex + 1);
-	const angle = (newIndex / total) * Math.PI * 2;
 	const node: GraphNodeData = {
 		id: `node-${Date.now()}`,
 		value,
-		x: Math.cos(angle) * 150 + 200,
-		y: Math.sin(angle) * 150 + 200,
+		x: 0,
+		y: 0,
 	};
 	const newEdges = [...data.edges];
 	if (data.nodes.length > 0) {
@@ -148,16 +155,18 @@ const addGraphNode = (data: GraphData, value: number): GraphData => {
 			newEdges.push({ from: newIndex, to: targetIndex });
 		}
 	}
-	return { nodes: [...data.nodes, node], edges: newEdges };
+	const relayouted = layoutGraphNodes([...data.nodes, node]);
+	return { nodes: relayouted, edges: newEdges };
 };
 
 const removeGraphNode = (data: GraphData): { data: GraphData; removed?: number } => {
 	if (data.nodes.length === 0) return { data };
 	const removedIndex = data.nodes.length - 1;
 	const removedNode = data.nodes[removedIndex];
+	const remainingNodes = data.nodes.slice(0, -1);
 	return {
 		data: {
-			nodes: data.nodes.slice(0, -1),
+			nodes: layoutGraphNodes(remainingNodes),
 			edges: data.edges.filter(
 				(edge) => edge.from !== removedIndex && edge.to !== removedIndex
 			),
@@ -364,6 +373,8 @@ export default function VisualizePage() {
 					break;
 				case "graph":
 					setGraphData((prev) => addGraphNode(prev, numericValue));
+					visualization.clearAlgorithmSteps();
+					visualization.setAnimating(false);
 					mutated = true;
 					break;
 				case "heap":
@@ -495,6 +506,8 @@ export default function VisualizePage() {
 					const { data, removed } = removeGraphNode(graphData);
 					setGraphData(data);
 					if (removed !== undefined) {
+						visualization.clearAlgorithmSteps();
+						visualization.setAnimating(false);
 						removedValue = removed;
 						didMutate = true;
 					}
@@ -710,12 +723,11 @@ export default function VisualizePage() {
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="card-base"
+						className="card-base overflow-auto max-h-96"
 					>
 						<h2 className="text-xl font-bold mb-4">Visualization</h2>
 						{renderVisualizer()}
-					</motion.div>
-
+					</motion.div>{" "}
 					{/* Controls */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -817,6 +829,23 @@ export default function VisualizePage() {
 								🎲 Random
 							</motion.button>
 						</div>
+
+						{/* Algorithm Steps Display */}
+						{visualization.algorithmSteps.length > 0 && (
+							<motion.div
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ delay: 0.3 }}
+								className="rounded-3xl border border-slate-700/60 bg-slate-900/40 p-4 mt-4 shadow-[0_15px_30px_rgba(15,23,42,0.45)]"
+							>
+								<AlgorithmStepsDisplay
+									steps={visualization.algorithmSteps}
+									currentStepIndex={visualization.currentStepIndex}
+									isPlaying={visualization.isAnimating}
+									orientation="horizontal"
+								/>
+							</motion.div>
+						)}
 					</motion.div>
 				</div>
 
@@ -862,28 +891,12 @@ export default function VisualizePage() {
 						<ComplexityTable complexities={structure.complexity} />
 					</motion.div>
 
-					{/* Algorithm Steps Display */}
-					{visualization.algorithmSteps.length > 0 && (
-						<motion.div
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.35 }}
-							className="card-base max-h-72"
-						>
-							<AlgorithmStepsDisplay
-								steps={visualization.algorithmSteps}
-								currentStepIndex={visualization.currentStepIndex}
-								isPlaying={visualization.isAnimating}
-							/>
-						</motion.div>
-					)}
-
 					{/* Operation Log */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.4 }}
-						className="card-base max-h-64"
+						className="card-base max-h-64 overflow-hidden"
 					>
 						<OperationLog
 							logs={visualization.operations}
